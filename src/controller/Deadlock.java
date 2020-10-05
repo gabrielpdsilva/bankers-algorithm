@@ -4,8 +4,6 @@ public class Deadlock {
 	
 	boolean[] impasse = {false, false, false, false};
 	
-	static int[] disponivel = {0, 0, 0, 0};
-	
 	static int[][] recursosAlocados = {
 										{3, 0, 1, 1},
 										{1, 1, 1, 0},
@@ -22,17 +20,17 @@ public class Deadlock {
 	
 	static int[] recursosExistentes = {7, 4, 2, 6};
 	
-	static int[] somaRecursosAlocados = {4, 3, 1, 5};
+	static int[] somatoriaRecursosAlocados = {4, 3, 1, 5};
 	
 	public static int[] pegaQtdRecursosEmUso(int[][] recursosAlocados){
 		
 		for(int linha = 0; linha < 4; linha++){
 			for(int coluna = 0; coluna < 4; coluna++){
-				somaRecursosAlocados[coluna] += recursosAlocados[linha][coluna];
+				somatoriaRecursosAlocados[coluna] += recursosAlocados[linha][coluna];
 			}
 		}
 		
-		return somaRecursosAlocados;
+		return somatoriaRecursosAlocados;
 	}
 	
 	public boolean deadlock(boolean[] impasse){
@@ -44,19 +42,29 @@ public class Deadlock {
 		
 	}
 	
-	public static int[] calculaRecursosDisponiveis(int[] disponivel){
+	public static int[] calcularRecursosDisponiveis(int[] recursosExistentes, int[] somatoriaRecursosAlocados){
 	
+		int[] recursosDisponiveis = {0, 0, 0, 0};
 		for(int coluna = 0; coluna < 4; coluna++)
-			disponivel[coluna] = recursosExistentes[coluna] - somaRecursosAlocados[coluna];
+			recursosDisponiveis[coluna] = recursosExistentes[coluna] - somatoriaRecursosAlocados[coluna];
 	
-		return disponivel;
+		return recursosDisponiveis;
+	}
+	
+	public void usarRecurso(){
+		//TODO
+	}
+	
+	public void devolverRecurso(){
+		//TODO
+		
 	}
 	
 	public static void main(String[] args) {
-		int[] disp = calculaRecursosDisponiveis(disponivel);
+		int[] recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
 		for(int i = 0; i < 4; i++)
-			System.out.print(disp[i] + " ");
+			System.out.print(recursosDisponiveis[i] + " ");
 	}
 
 }
