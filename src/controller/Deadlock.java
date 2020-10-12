@@ -6,6 +6,8 @@ public class Deadlock {
 	
 	static boolean[] impasse = {false, false, false, false, false};
 	
+	static int contador = 0;
+	
 	
 	static int[][] recursosAlocados = {
 										{0, 1, 0, 0},
@@ -23,11 +25,11 @@ public class Deadlock {
 										{2, 0, 1, 0}
 													};
 	
+	static int[] recursosDisponiveis = {0, 0, 0, 0};
+	
 	static int[] recursosExistentes = {7, 4, 2, 6};
 	
 	static int[] somatoriaRecursosAlocados = {4, 3, 1, 5};
-	
-	static int[] recursosDisponiveis;
 	
 	static boolean[] processoServido = {false, false, false, false, false};
 	
@@ -52,8 +54,7 @@ public class Deadlock {
 	}
 	
 	public static int[] calcularRecursosDisponiveis(int[] recursosExistentes, int[] somatoriaRecursosAlocados){
-	
-		int[] recursosDisponiveis = {0, 0, 0, 0};
+		
 		for(int recurso = 0; recurso < 4; recurso++)
 			recursosDisponiveis[recurso] = recursosExistentes[recurso] - somatoriaRecursosAlocados[recurso];
 	
@@ -83,7 +84,8 @@ public class Deadlock {
 			
 		}
 		processoServido[processo] = true;
-		System.out.println("[" + processo + "] devolveu o recurso .");
+		System.out.println("[" + processo + "] devolveu o recurso . Ficou em " + contador + " lugar.");
+		contador++;
 	}
 	
 	public static void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
@@ -115,7 +117,7 @@ public class Deadlock {
 		}
 	}
 	
-	public boolean processosServidos(){
+	public static boolean processosServidos(){
 		for(int processo = 0; processo < 5; processo++)
 			if(!processoServido[processo])
 				return false;
@@ -123,7 +125,7 @@ public class Deadlock {
 		return true;
 	}
 	
-	public void executar(){
+	public static void executar(){
 		while(!processosServidos() || !deadlock()){
 			compararRecursos(recursosNecessarios, recursosDisponiveis);
 		}
@@ -139,7 +141,7 @@ public class Deadlock {
 		
 		System.out.println();
 		
-		compararRecursos(recursosNecessarios, recursosDisponiveis);
+		executar();
 	}
 
 }
