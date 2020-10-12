@@ -1,8 +1,11 @@
 package controller;
 
+import java.util.Comparator;
+
 public class Deadlock {
 	
-	boolean[] impasse = {false, false, false, false};
+	static boolean[] impasse = {false, false, false, false, false};
+	
 	
 	static int[][] recursosAlocados = {
 										{0, 1, 0, 0},
@@ -26,73 +29,103 @@ public class Deadlock {
 	
 	static int[] recursosDisponiveis;
 	
+	static boolean[] processoServido = {false, false, false, false, false};
+	
 	public static int[] pegaQtdRecursosEmUso(int[][] recursosAlocados){
 		
-		for(int linha = 0; linha < 5; linha++){
-			for(int coluna = 0; coluna < 4; coluna++){
-				somatoriaRecursosAlocados[coluna] += recursosAlocados[linha][coluna];
+		for(int processo = 0; processo < 5; processo++){
+			for(int recurso = 0; recurso < 4; recurso++){
+				somatoriaRecursosAlocados[recurso] += recursosAlocados[processo][recurso];
 			}
 		}
 		
 		return somatoriaRecursosAlocados;
 	}
 	
-	public boolean deadlock(){
+	public static boolean deadlock(){
 		
-		if(impasse[0] && impasse[1] && impasse[2] && impasse[3])
-			return true;
+		for(int processo = 0; processo < 5; processo++)
+			if(!impasse[processo])
+				return false;
 		
-		return false;
-		
+		return true;
 	}
 	
 	public static int[] calcularRecursosDisponiveis(int[] recursosExistentes, int[] somatoriaRecursosAlocados){
 	
 		int[] recursosDisponiveis = {0, 0, 0, 0};
-		for(int coluna = 0; coluna < 4; coluna++)
-			recursosDisponiveis[coluna] = recursosExistentes[coluna] - somatoriaRecursosAlocados[coluna];
+		for(int recurso = 0; recurso < 4; recurso++)
+			recursosDisponiveis[recurso] = recursosExistentes[recurso] - somatoriaRecursosAlocados[recurso];
 	
 		return recursosDisponiveis;
 	}
 	
-	public void usarRecurso(int linha){
-		for(int coluna = 0; coluna < 4; coluna++){
+	public static void usarRecurso(int processo){
+		System.out.println("[" + processo + "] esta usando recurso.");
+		for(int recurso = 0; recurso < 4; recurso++){
 
 			//recursos disponiveis estao sendo emprestados aos processos
-			recursosAlocados[linha][coluna] += recursosDisponiveis[coluna];
+			recursosAlocados[processo][recurso] += recursosDisponiveis[recurso];
 			
 			//recursos disponiveis diminuiram
-			recursosDisponiveis[coluna] -= recursosAlocados[linha][coluna];
+			recursosDisponiveis[recurso] -= recursosAlocados[processo][recurso];
 		}
 	}
 	
-	public void devolverRecurso(int linha){
-		for(int coluna = 0; coluna < 4; coluna++){
+	public static void devolverRecurso(int processo){
+		for(int recurso = 0; recurso < 4; recurso++){
 			
 			//recursos antes usados agora serao devolvidos para os recursos disponiveis
-			recursosDisponiveis[coluna] += recursosAlocados[linha][coluna];
+			recursosDisponiveis[recurso] += recursosAlocados[processo][recurso];
 			
 			//zerando a quantidade de recursos que aquele processo precisa
-			recursosAlocados[linha][coluna] = 0;
+			recursosAlocados[processo][recurso] = 0;
+			
 		}
+		processoServido[processo] = true;
+		System.out.println("[" + processo + "] devolveu o recurso .");
 	}
 	
-	public void compararRecursos(int[] recursosNecessarios, int[] recursosDisponiveis){
+	public static void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
 		
 		if(deadlock())
 			return;
 		
-		for(int linha = 0; linha < 5; linha++){
-			for(int coluna = 0; coluna < 4; coluna++){
+		for(int processo = 0; processo < 5; processo++){
+			
+			if(processoServido[processo])
+				continue;
+			
+			for(int recurso = 0; recurso < 4; recurso++){
+				
+				if(processoServido[processo])
+					continue;
 						
-				if(recursosDisponiveis[coluna] < recursosNecessarios[coluna]){
-					impasse[linha] = true;
-				} else {
-					usarRecurso(linha);
-					devolverRecurso(linha);
+				if(recursosDisponiveis[recurso] < recursosNecessarios[processo][recurso]){
+					impasse[processo] = true;
+					System.out.println(processo + " tá inseguro.");
+				}
+					
+				else {
+					usarRecurso(processo);
+					devolverRecurso(processo);
 				}
 				
 			}	
+		}
+	}
+	
+	public boolean processosServidos(){
+		for(int processo = 0; processo < 5; processo++)
+			if(!processoServido[processo])
+				return false;
+		
+		return true;
+	}
+	
+	public void executar(){
+		while(!processosServidos() || !deadlock()){
+			compararRecursos(recursosNecessarios, recursosDisponiveis);
 		}
 	}
 	
@@ -100,8 +133,13 @@ public class Deadlock {
 		
 		recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
+		System.out.print("Recursos disponíveis -> ");
 		for(int i = 0; i < 4; i++)
 			System.out.print(recursosDisponiveis[i] + " ");
+		
+		System.out.println();
+		
+		compararRecursos(recursosNecessarios, recursosDisponiveis);
 	}
 
 }
