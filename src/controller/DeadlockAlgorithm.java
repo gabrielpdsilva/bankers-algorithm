@@ -2,46 +2,55 @@ package controller;
 
 public class DeadlockAlgorithm {
 	
-	public DeadlockAlgorithm(int totalDeProcessos, int totalDeRecursos, int[][] recursosAlocados, int[][] recursosNecessarios) {
+	public DeadlockAlgorithm(int totalDeProcessos, int totalDeRecursos, int[][] recursosAlocados, int[][] recursosNecessarios, int[] recursosExistentes) {
 		
 		this.totalDeProcessos = totalDeProcessos;
 		this.totalDeRecursos = totalDeRecursos;
 		this.recursosAlocados = recursosAlocados;
 		this.recursosNecessarios = recursosNecessarios;
+		this.recursosExistentes = recursosExistentes;
+		
+		this.vezesExecutadasDoProcesso = new int[totalDeProcessos];
+		this.processoServido = new boolean[totalDeProcessos];
+		this.impasse = new boolean[totalDeProcessos];
+		
+		this.recursosDisponiveis = new int[totalDeRecursos];
+		this.somatoriaRecursosAlocados = new int[totalDeRecursos];
+		
+		//definindo valor padrao pros vetores responsaveis pelos processos
+		for(int i = 0; i < totalDeProcessos; i++){
+			vezesExecutadasDoProcesso[i] = 0;
+			processoServido[i] = false;
+			impasse[i] = false;
+		}
+		
+		//definindo valor padrao pros vetores responsaveis pelos recursos
+		for(int i = 0; i < totalDeRecursos; i++){
+			recursosDisponiveis[i] = 0;
+			somatoriaRecursosAlocados[i] = 0;
+		}
 	}
 	
 	private int totalDeProcessos;
 	private int totalDeRecursos;
 	
-	private boolean[] impasse = {false, false, false, false, false};
+	private boolean[] impasse;
 	
 	private int contadorDeRecursos = 0;
 	
-	private int[][] recursosAlocados = {
-										{0, 1, 0, 0},
-										{2, 0, 1, 1},
-										{0, 1, 0, 2},
-										{2, 0, 0, 0},
-										{0, 1, 0, 2},
-													};
+	private int[][] recursosAlocados;
 	
-	private int[][] recursosNecessarios = {
-										{1, 1, 0, 2},
-										{0, 2, 0, 1},
-										{1, 0, 2, 0},
-										{0, 2, 0, 2},
-										{2, 0, 1, 0}
-													};
+	private int[][] recursosNecessarios;
 	
-	private int[] vezesExecutadasDoProcesso = {0, 0, 0, 0, 0};
+	private int[] vezesExecutadasDoProcesso;
 	
-	private int[] recursosDisponiveis = {0, 0, 0, 0};
+	private int[] recursosDisponiveis;
 	
-	private int[] recursosExistentes = {7, 4, 2, 6};
+	private int[] recursosExistentes;
 	
-	private int[] somatoriaRecursosAlocados = {0, 0, 0, 0};
+	private int[] somatoriaRecursosAlocados;
 	
-	static boolean[] processoServido = {false, false, false, false, false};
+	private boolean[] processoServido;
 	
 	private int[] pegaQtdRecursosEmUso(int[][] recursosAlocados){
 		
@@ -73,7 +82,7 @@ public class DeadlockAlgorithm {
 					return true;
 		
 		//se nao conseguiu rodar nenhum processo
-		for(int processo = 0; processo < 5; processo++)
+		for(int processo = 0; processo < this.totalDeProcessos; processo++)
 			if(!impasse[processo])
 				return false;
 		
@@ -90,8 +99,8 @@ public class DeadlockAlgorithm {
 	
 	private int[][] criarCopiaDaMatriz(int[][] antigaMatriz){
 		int[][] novaMatriz = new int[totalDeProcessos][totalDeRecursos];
-		for(int i = 0; i < 5; i++){
-			for(int j = 0; j < 4; j++){
+		for(int i = 0; i < this.totalDeProcessos; i++){
+			for(int j = 0; j < this.totalDeRecursos; j++){
 				novaMatriz[i][j] = antigaMatriz[i][j];
 			}
 		}
@@ -150,9 +159,17 @@ public class DeadlockAlgorithm {
 		resetarImpasses();
 	}
 	
+	private void mostrarAndamentoDaComparacao(int processo, int recurso){
+		System.out.println();
+		System.out.println("===========");
+		System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
+		System.out.println("Se " + recursosDisponiveis[recurso] + " < "+ recursosNecessarios[processo][recurso] + "; ");
+		System.out.println("Impasse do processo [" + processo + "] = " + impasse[processo]);
+	}
+	
 	private void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
 		
-		for(int processo = 0; processo < 5; processo++){
+		for(int processo = 0; processo < this.totalDeProcessos; processo++){
 			
 			//se ja foi servido, va servir o proximo processo
 			if(processoServido[processo])
@@ -162,13 +179,9 @@ public class DeadlockAlgorithm {
 			vezesExecutadasDoProcesso[processo]++;
 			System.out.println("Executou " + vezesExecutadasDoProcesso[processo] + "x.");
 			
-			for(int recurso = 0; recurso < 4; recurso++){
+			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
 				
-				System.out.println();
-				System.out.println("===========");
-				System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
-				System.out.println("Se " + recursosDisponiveis[recurso] + " < "+ recursosNecessarios[processo][recurso] + "; ");
-				System.out.println("Impasse do processo [" + processo + "] = " + impasse[processo]);
+				mostrarAndamentoDaComparacao(processo, recurso);
 				
 				if(recursosDisponiveis[recurso] < recursosNecessarios[processo][recurso]){
 					impasse[processo] = true;

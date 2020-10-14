@@ -26,10 +26,12 @@ public class Main {
 										{2, 0, 1, 0}
 													};
 		
-		DeadlockAlgorithm deadlock = new DeadlockAlgorithm(qtdProcessos, qtdRecursos, recursosAlocados, recursosNecessarios);
+		int[] recursosExistentes = {7, 4, 2, 6};
+		
+		DeadlockAlgorithm deadlock = new DeadlockAlgorithm(qtdProcessos, qtdRecursos, recursosAlocados, recursosNecessarios, recursosExistentes);
 		deadlock.mostrarRecursosAlocados();
 		deadlock.mostrarRecursosNecessarios();
-		//deadlock.realizarAnalise();
+		deadlock.realizarAnalise();
 		
 	}
 
