@@ -1,13 +1,10 @@
 package controller;
 
-import java.util.Comparator;
-
 public class Deadlock {
 	
 	static boolean[] impasse = {false, false, false, false, false};
 	
 	static int contador = 0;
-	
 	
 	static int[][] recursosAlocados = {
 										{0, 1, 0, 0},
@@ -44,7 +41,18 @@ public class Deadlock {
 		return somatoriaRecursosAlocados;
 	}
 	
+	//TODO
 	public static boolean deadlock(){
+		
+		//se os recursos existentes nao satisfazerem os recursos necessarios + recursos alocados
+		for(int processo = 0; processo < 5; processo++)
+			for(int recurso = 0; recurso < 4; recurso++)
+				
+				if(recursosExistentes[recurso] <
+				  (recursosNecessarios[processo][recurso] + recursosAlocados[processo][recurso]))
+					return true;
+		
+		//apagar codigo acima, provavelmente /\
 		
 		for(int processo = 0; processo < 5; processo++)
 			if(!impasse[processo])
@@ -61,13 +69,22 @@ public class Deadlock {
 		return recursosDisponiveis;
 	}
 	
-	//TODO
+	public static int[][] criarCopiaDaMatriz(int[][] antigaMatriz){
+		int[][] novaMatriz = new int[5][4];
+		for(int i = 0; i < 5; i++){
+			for(int j = 0; j < 4; j++){
+				novaMatriz[i][j] = antigaMatriz[i][j];
+			}
+		}
+		return novaMatriz;
+	}
+	
 	public static void usarRecurso(int processo){
 		System.out.println("[" + processo + "] esta usando recurso.");
 		mostrarRecursosAlocados();
 		mostrarRecursosDisponiveis();
 		
-		int[][] RecursosAlocadosAntesDaSoma = recursosAlocados;
+		int[][] recursosAlocadosAntesDaSoma = criarCopiaDaMatriz(recursosAlocados);
 		
 		for(int recurso = 0; recurso < 4; recurso++){
 			
@@ -77,7 +94,7 @@ public class Deadlock {
 				recursosAlocados[processo][recurso] += recursosDisponiveis[recurso];
 				
 				//recursos disponiveis diminuiram
-				recursosDisponiveis[recurso] -= RecursosAlocadosAntesDaSoma[processo][recurso];
+				recursosDisponiveis[recurso] -= recursosAlocadosAntesDaSoma[processo][recurso];
 				
 			}
 			
@@ -86,27 +103,30 @@ public class Deadlock {
 		mostrarRecursosDisponiveis();
 	}
 	
+	public static void resetarImpasses(){
+		for(int processo = 0; processo < 4; processo++)
+			impasse[processo] = false;
+	}
+	
 	public static void devolverRecurso(int processo){
 		for(int recurso = 0; recurso < 4; recurso++){
 			
 			//recursos antes usados agora serao devolvidos para os recursos disponiveis
-			recursosDisponiveis[recurso] += recursosAlocados[processo][recurso];
+			recursosDisponiveis[recurso] = recursosAlocados[processo][recurso];
+			
 
 			//zerando a quantidade de recursos que aquele processo precisa
 			recursosAlocados[processo][recurso] = 0;
 			
 		}
 		processoServido[processo] = true;
-		System.out.println("[" + processo + "] devolveu o recurso . Ficou em " + (contador+1) + "o lugar.");
+		System.out.println("[" + processo + "] devolveu o recurso. Ficou em " + (contador+1) + "o lugar.");
 		contador++;
 		mostrarRecursosDisponiveis();
+		resetarImpasses();
 	}
 	
 	public static void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
-		
-		
-		//if(deadlock())
-		//	return;
 		
 		for(int processo = 0; processo < 5; processo++){
 			
@@ -116,9 +136,6 @@ public class Deadlock {
 			
 			for(int recurso = 0; recurso < 4; recurso++){
 				
-				//System.out.println("Recurso -> " + recurso);
-				
-				//System.out.println("recDisponiveis[recurso] -> " + recursosDisponiveis[recurso]);
 				System.out.println();
 				System.out.println("===========");
 				System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
@@ -170,17 +187,28 @@ public class Deadlock {
 		return true;
 	}
 	
+	//TODO
 	public static void executar(){
-		recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
+		//recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
+		recursosDisponiveis[0] = 1;
+		recursosDisponiveis[1] = 1;
+		recursosDisponiveis[2] = 0;
+		recursosDisponiveis[3] = 2;
 		
-		while(!processosServidos() || !deadlock()){
+		//while(!processosServidos() && !deadlock()){//!(processosServidos() || deadlock())){
+			
+		int cont = 1;
+		while(cont < 40){
 			compararRecursos(recursosNecessarios, recursosDisponiveis);
+			cont++;
 		}
 	}
 	
 	public static void main(String[] args) {
 		
+		System.out.println("VAI");
 		executar();
+		System.out.println("CABÔ");
 	}
 
 }
