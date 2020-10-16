@@ -81,7 +81,7 @@ public class DeadlockAlgorithm {
 			}
 				
 		
-		//se nao conseguiu rodar nenhum processo
+		//conferindo se conseguiu rodar algum processo
 		for(int processo = 0; processo < this.totalDeProcessos; processo++)
 			if(!impasse[processo])
 				return false;
