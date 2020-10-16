@@ -75,14 +75,18 @@ public class DeadlockAlgorithm {
 		//se processou mais do que o total de processos e ainda
 		//assim nao conseguiu finalizar, deu deadlock
 		for(int processo = 0; processo < this.totalDeProcessos; processo++)
-			if(vezesExecutadasDoProcesso[processo] >= this.totalDeProcessos)
+			if(vezesExecutadasDoProcesso[processo] >= this.totalDeProcessos){
+				System.out.println("\nDEADLOCK, motivo: algum processo rodou mais do que o necessário e ainda não conseguiu\nser executado, ou seja, jamais haverão recursos suficientes para ele executar.");
 				return true;
+			}
+				
 		
 		//se nao conseguiu rodar nenhum processo
 		for(int processo = 0; processo < this.totalDeProcessos; processo++)
 			if(!impasse[processo])
 				return false;
 		
+		System.out.println("\nDEADLOCK, motivo: nenhum processo pôde ser executado.");
 		return true;
 	}
 	
