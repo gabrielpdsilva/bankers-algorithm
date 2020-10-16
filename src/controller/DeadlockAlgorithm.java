@@ -163,6 +163,12 @@ public class DeadlockAlgorithm {
 		System.out.println("Analisando se recurso disponível (" + recursosDisponiveis[recurso] + ") < recurso necessário ("+ recursosNecessarios[processo][recurso] + ")...");
 	}
 	
+	private void mostrarVezesExecutadas(int processo){
+		System.out.println("\n*********************************************");
+		System.out.println("*Processo[" + processo + "] está sendo executado pela " + vezesExecutadasDoProcesso[processo] + "x...*");
+		System.out.println("*********************************************\n");
+	}
+	
 	private void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
 		
 		for(int processo = 0; processo < this.totalDeProcessos; processo++){
@@ -174,9 +180,7 @@ public class DeadlockAlgorithm {
 			//passou pelo processo
 			vezesExecutadasDoProcesso[processo]++;
 			
-			System.out.println("\n*********************************************");
-			System.out.println("*Processo[" + processo + "] está sendo executado pela " + vezesExecutadasDoProcesso[processo] + "x...*");
-			System.out.println("*********************************************\n");
+			mostrarVezesExecutadas(processo);
 			
 			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
 				
@@ -194,9 +198,16 @@ public class DeadlockAlgorithm {
 					System.out.println("\nO processo " + processo + " é seguro!");
 					usarRecurso(processo);
 					devolverRecurso(processo);
+					
+					//forçando a voltar a comparar desde o primeiro
+					//processo, em vez de seguir em frente.
+					//Necessario colocar -1 pois se colocar 0, o loop
+					//vai começar do 1.
+					processo = -1;
 				}
 				
-			}	
+			}
+			
 		}
 	}
 	
@@ -248,13 +259,17 @@ public class DeadlockAlgorithm {
 		this.recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
 		if(!recursosValidos()){
-			System.out.println("O total de recursos existentes não é maior que o total de recursos necessários, impossível prosseguir.");
+			System.out.println("Total de recursos existentes < (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
 			return;
 		}
 		//recursosDisponiveis[0] = 1;
 		//recursosDisponiveis[1] = 1;
 		//recursosDisponiveis[2] = 0;
 		//recursosDisponiveis[3] = 2;
+		
+		mostrarRecursosAlocados();
+		mostrarRecursosNecessarios();
+		mostrarRecursosDisponiveis();
 		
 		while(!processosServidos() && !deadlock()){
 			compararRecursos(recursosNecessarios, recursosDisponiveis);
