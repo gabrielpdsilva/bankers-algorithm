@@ -258,10 +258,10 @@ public class DeadlockAlgorithm {
 		this.somatoriaRecursosAlocados = pegaQtdRecursosEmUso(recursosAlocados);
 		this.recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
-		if(!recursosValidos()){
-			System.out.println("Total de recursos existentes < (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
-			return;
-		}
+		//if(!recursosValidos()){
+		//	System.out.println("Total de recursos existentes < (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
+		//	return;
+		//}
 		//recursosDisponiveis[0] = 1;
 		//recursosDisponiveis[1] = 1;
 		//recursosDisponiveis[2] = 0;
