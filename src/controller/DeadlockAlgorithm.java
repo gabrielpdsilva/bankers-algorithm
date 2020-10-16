@@ -2,6 +2,19 @@ package controller;
 
 public class DeadlockAlgorithm {
 	
+	private int totalDeProcessos;
+	private int totalDeRecursos;	
+	private int posicaoDoProcesso = 0;
+	
+	private int[][] recursosAlocados;
+	private int[][] recursosNecessarios;
+	private int[] vezesExecutadasDoProcesso;
+	private int[] recursosDisponiveis;
+	private int[] recursosExistentes;
+	private int[] somatoriaRecursosAlocados;
+	private boolean[] processoServido;
+	private boolean[] impasse;
+	
 	public DeadlockAlgorithm(int totalDeProcessos, int totalDeRecursos, int[][] recursosAlocados, int[][] recursosNecessarios, int[] recursosExistentes) {
 		
 		this.totalDeProcessos = totalDeProcessos;
@@ -31,36 +44,30 @@ public class DeadlockAlgorithm {
 		}
 	}
 	
-	private int totalDeProcessos;
-	private int totalDeRecursos;
-	
-	private boolean[] impasse;
-	
-	private int contadorDeRecursos = 0;
-	
-	private int[][] recursosAlocados;
-	
-	private int[][] recursosNecessarios;
-	
-	private int[] vezesExecutadasDoProcesso;
-	
-	private int[] recursosDisponiveis;
-	
-	private int[] recursosExistentes;
-	
-	private int[] somatoriaRecursosAlocados;
-	
-	private boolean[] processoServido;
-	
 	private int[] pegaQtdRecursosEmUso(int[][] recursosAlocados){
 		
-		for(int processo = 0; processo < 5; processo++){
-			for(int recurso = 0; recurso < 4; recurso++){
+		for(int processo = 0; processo < this.totalDeProcessos; processo++){
+			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
 				somatoriaRecursosAlocados[recurso] += recursosAlocados[processo][recurso];
 			}
 		}
 		
 		return somatoriaRecursosAlocados;
+	}
+	
+	private boolean qtdValidaDeRecursos(){
+		
+		//se os recursos existentes nao satisfazerem
+		//os recursos necessarios + recursos alocados
+		for(int processo = 0; processo < this.totalDeProcessos; processo++)
+			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++)
+
+				if(recursosExistentes[recurso] <
+				  (recursosNecessarios[processo][recurso] + recursosAlocados[processo][recurso]))
+					return false;
+		
+		return true;
+		
 	}
 	
 	//TODO
@@ -71,15 +78,6 @@ public class DeadlockAlgorithm {
 		for(int processo = 0; processo < this.totalDeProcessos; processo++)
 			if(vezesExecutadasDoProcesso[processo] >= this.totalDeProcessos)
 				return true;
-		
-		//se os recursos existentes nao satisfazerem
-		//os recursos necessarios + recursos alocados
-		for(int processo = 0; processo < this.totalDeProcessos; processo++)
-			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++)
-				
-				if(recursosExistentes[recurso] <
-				  (recursosNecessarios[processo][recurso] + recursosAlocados[processo][recurso]))
-					return true;
 		
 		//se nao conseguiu rodar nenhum processo
 		for(int processo = 0; processo < this.totalDeProcessos; processo++)
@@ -109,8 +107,6 @@ public class DeadlockAlgorithm {
 	
 	public void usarRecurso(int processo){
 		System.out.println("Processo[" + processo + "] esta usando recurso.");
-		mostrarRecursosAlocados();
-		mostrarRecursosDisponiveis();
 		
 		int[][] recursosAlocadosAntesDaSoma = criarCopiaDaMatriz(recursosAlocados);
 		
@@ -149,8 +145,8 @@ public class DeadlockAlgorithm {
 			
 		}
 		processoServido[processo] = true;
-		System.out.println("Processo[" + processo + "] devolveu o recurso. Ficou em " + (this.contadorDeRecursos+1) + "o lugar.");
-		this.contadorDeRecursos++;
+		System.out.println("Processo[" + processo + "] devolveu o recurso. Ficou em " + (this.posicaoDoProcesso+1) + "o lugar.");
+		this.posicaoDoProcesso++;
 		mostrarRecursosDisponiveis();
 		
 		//serviu o processo, esqueça os antigos
@@ -177,6 +173,7 @@ public class DeadlockAlgorithm {
 			
 			//passou pelo processo
 			vezesExecutadasDoProcesso[processo]++;
+			
 			System.out.println("Executou " + vezesExecutadasDoProcesso[processo] + "x.");
 			
 			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
@@ -202,6 +199,7 @@ public class DeadlockAlgorithm {
 	}
 	
 	private void mostrarRecursosDisponiveis(){
+		System.out.println("================");
 		System.out.println("Rec. disponíveis: ");
 		for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
 			System.out.print(recursosDisponiveis[recurso] + " ");
@@ -247,17 +245,23 @@ public class DeadlockAlgorithm {
 		this.somatoriaRecursosAlocados = pegaQtdRecursosEmUso(recursosAlocados);
 		this.recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
+		if(!qtdValidaDeRecursos()){
+			System.out.println("O total de recursos existentes não é maior que o total de recursos necessários, impossível prosseguir.");
+			return;
+		}
 		//recursosDisponiveis[0] = 1;
 		//recursosDisponiveis[1] = 1;
 		//recursosDisponiveis[2] = 0;
 		//recursosDisponiveis[3] = 2;
+		
 		while(!processosServidos() && !deadlock()){
-			
+			compararRecursos(recursosNecessarios, recursosDisponiveis);
+		}
+		
 		//int cont = 1;
 		//while(cont < 40){
-			compararRecursos(recursosNecessarios, recursosDisponiveis);
+		//	compararRecursos(recursosNecessarios, recursosDisponiveis);
 		//	cont++;
-		}
 	}
 
 }
