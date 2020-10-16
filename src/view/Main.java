@@ -26,8 +26,8 @@ public class Main {
 										{2, 0, 1, 0}
 													};
 		
-		//int[] recursosExistentes = {7, 4, 2, 6};
-		int[] recursosExistentes = {0, 0, 1, 6};
+		int[] recursosExistentes = {7, 4, 2, 6};
+		//int[] recursosExistentes = {0, 0, 1, 6};
 		
 		DeadlockAlgorithm deadlock = new DeadlockAlgorithm(qtdProcessos, qtdRecursos, recursosAlocados, recursosNecessarios, recursosExistentes);
 		deadlock.mostrarRecursosAlocados();

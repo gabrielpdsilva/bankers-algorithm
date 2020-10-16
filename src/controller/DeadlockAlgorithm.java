@@ -55,7 +55,7 @@ public class DeadlockAlgorithm {
 		return somatoriaRecursosAlocados;
 	}
 	
-	private boolean qtdValidaDeRecursos(){
+	private boolean recursosValidos(){
 		
 		//se os recursos existentes nao satisfazerem
 		//os recursos necessarios + recursos alocados
@@ -70,7 +70,6 @@ public class DeadlockAlgorithm {
 		
 	}
 	
-	//TODO
 	private boolean deadlock(){
 		
 		//se processou mais do que o total de processos e ainda
@@ -106,7 +105,7 @@ public class DeadlockAlgorithm {
 	}
 	
 	public void usarRecurso(int processo){
-		System.out.println("Processo[" + processo + "] esta usando recurso.");
+		System.out.println("Processo[" + processo + "] está usando recurso.");
 		
 		int[][] recursosAlocadosAntesDaSoma = criarCopiaDaMatriz(recursosAlocados);
 		
@@ -123,8 +122,6 @@ public class DeadlockAlgorithm {
 			}
 			
 		}
-		mostrarRecursosAlocados();
-		mostrarRecursosDisponiveis();
 	}
 	
 	private void resetarImpasses(){
@@ -142,11 +139,15 @@ public class DeadlockAlgorithm {
 			//zerando a quantidade de recursos
 			//que aquele processo precisa
 			recursosAlocados[processo][recurso] = 0;
+			recursosNecessarios[processo][recurso] = 0;
 			
 		}
 		processoServido[processo] = true;
 		System.out.println("Processo[" + processo + "] devolveu o recurso. Ficou em " + (this.posicaoDoProcesso+1) + "o lugar.");
 		this.posicaoDoProcesso++;
+		
+		System.out.println("\n--------------------------------------------------------------");
+		System.out.println("Exibindo recursos disponíveis após o processo devolver recurso:");
 		mostrarRecursosDisponiveis();
 		
 		//serviu o processo, esqueça os antigos
@@ -157,10 +158,9 @@ public class DeadlockAlgorithm {
 	
 	private void mostrarAndamentoDaComparacao(int processo, int recurso){
 		System.out.println();
-		System.out.println("===========");
+		System.out.println("=============================================");
 		System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
-		System.out.println("Se " + recursosDisponiveis[recurso] + " < "+ recursosNecessarios[processo][recurso] + "; ");
-		System.out.println("Impasse do processo [" + processo + "] = " + impasse[processo]);
+		System.out.println("Analisando se recurso disponível (" + recursosDisponiveis[recurso] + ") < recurso necessário ("+ recursosNecessarios[processo][recurso] + ")...");
 	}
 	
 	private void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
@@ -174,7 +174,9 @@ public class DeadlockAlgorithm {
 			//passou pelo processo
 			vezesExecutadasDoProcesso[processo]++;
 			
-			System.out.println("Executou " + vezesExecutadasDoProcesso[processo] + "x.");
+			System.out.println("\n*********************************************");
+			System.out.println("*Processo[" + processo + "] está sendo executado pela " + vezesExecutadasDoProcesso[processo] + "x...*");
+			System.out.println("*********************************************\n");
 			
 			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
 				
@@ -182,14 +184,14 @@ public class DeadlockAlgorithm {
 				
 				if(recursosDisponiveis[recurso] < recursosNecessarios[processo][recurso]){
 					impasse[processo] = true;
-					System.out.println(processo + " tá inseguro.");
+					System.out.println("Processo[" + processo + "] está inseguro.");
 					break;
 				}
 				
 				//chegou ate o fim dos recursos e nao houve impasses
 				else if((recurso >= (this.totalDeRecursos-1)) && (!impasse[processo])){
 					
-					System.out.println("O processo " + processo + " é seguro!");
+					System.out.println("\nO processo " + processo + " é seguro!");
 					usarRecurso(processo);
 					devolverRecurso(processo);
 				}
@@ -245,7 +247,7 @@ public class DeadlockAlgorithm {
 		this.somatoriaRecursosAlocados = pegaQtdRecursosEmUso(recursosAlocados);
 		this.recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
-		if(!qtdValidaDeRecursos()){
+		if(!recursosValidos()){
 			System.out.println("O total de recursos existentes não é maior que o total de recursos necessários, impossível prosseguir.");
 			return;
 		}
@@ -258,6 +260,8 @@ public class DeadlockAlgorithm {
 			compararRecursos(recursosNecessarios, recursosDisponiveis);
 		}
 		
+		System.out.println();
+		System.out.println("ANÁLISE FINALIZADA.");
 		//int cont = 1;
 		//while(cont < 40){
 		//	compararRecursos(recursosNecessarios, recursosDisponiveis);
