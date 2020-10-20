@@ -22,7 +22,6 @@ public class DeadlockAlgorithm {
 		this.recursosAlocados = recursosAlocados;
 		this.recursosNecessarios = recursosNecessarios;
 		this.recursosExistentes = recursosExistentes;
-		
 		this.vezesExecutadasDoProcesso = new int[totalDeProcessos];
 		this.processoServido = new boolean[totalDeProcessos];
 		this.impasse = new boolean[totalDeProcessos];
@@ -44,7 +43,7 @@ public class DeadlockAlgorithm {
 		}
 	}
 	
-	private int[] pegaQtdRecursosEmUso(int[][] recursosAlocados){
+	private int[] calcularRecursosEmUso(int[][] recursosAlocados){
 		
 		for(int processo = 0; processo < this.totalDeProcessos; processo++){
 			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
@@ -55,7 +54,20 @@ public class DeadlockAlgorithm {
 		return somatoriaRecursosAlocados;
 	}
 	
-	private boolean recursosInsuficientes(){
+	private int[] calcularRecursosExistentes(int[][] recursosAlocados, int[] recursosDisponiveis){
+		for(int processo = 0; processo < this.totalDeProcessos; processo++){
+			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
+				recursosExistentes[recurso] += recursosAlocados[processo][recurso];
+			}
+		}
+		
+		for(int recurso = 0; recurso < this.totalDeRecursos; recurso++)
+			recursosExistentes[recurso] += recursosDisponiveis[recurso];
+		
+		return recursosExistentes;
+	}
+	
+	private boolean recursosSuficientes(){
 		
 		//se os recursos existentes nao satisfazerem
 		//os recursos necessarios + recursos alocados
@@ -248,21 +260,25 @@ public class DeadlockAlgorithm {
 	//TODO
 	public void realizarAnalise(){
 		
-		this.somatoriaRecursosAlocados = pegaQtdRecursosEmUso(recursosAlocados);
+		this.somatoriaRecursosAlocados = calcularRecursosEmUso(recursosAlocados);
 		this.recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
-		
-		if(recursosInsuficientes()){
-			System.out.println("Total de recursos existentes < (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
-			return;
-		}
 		
 		mostrarMatrizDe("Rec. necessários", recursosNecessarios);
 		mostrarMatrizDe("Rec. alocados", recursosAlocados);
 		mostrarVetorDe("Rec. disponíveis", recursosDisponiveis);
+		mostrarVetorDe("Rec. existentes", recursosExistentes);
+		
+		if(!recursosSuficientes()){
+			System.out.println("Não há recursos existentes suficientes para suprir o (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
+			return;
+		}
 		
 		while(!processosServidos() && !deadlock()){
 			compararRecursos(recursosNecessarios, recursosDisponiveis);
 		}
+		
+		if(!deadlock())
+			System.out.println("\nNão houve deadlock.");
 		
 		System.out.println();
 		System.out.println("ANÁLISE FINALIZADA.");

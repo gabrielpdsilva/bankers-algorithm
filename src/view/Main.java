@@ -50,10 +50,10 @@ public class Main {
 
 		int[] recursosExistentes1 = {10, 5, 7};
 		
-		//DeadlockAlgorithm deadlock = new DeadlockAlgorithm(qtdProcessos, qtdRecursos, recursosAlocados, recursosNecessarios, recursosExistentes);
-		DeadlockAlgorithm deadlock1 = new DeadlockAlgorithm(qtdProcessos1, qtdRecursos1, recursosAlocados1, recursosNecessarios1, recursosExistentes1);
+		DeadlockAlgorithm deadlock = new DeadlockAlgorithm(qtdProcessos, qtdRecursos, recursosAlocados, recursosNecessarios, recursosExistentes);
 		
-		deadlock1.realizarAnalise();
+		//DeadlockAlgorithm deadlock1 = new DeadlockAlgorithm(qtdProcessos1, qtdRecursos1, recursosAlocados1, recursosNecessarios1, recursosExistentes1);
+		deadlock.realizarAnalise();
 		
 	}
 
