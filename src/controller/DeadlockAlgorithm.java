@@ -55,7 +55,7 @@ public class DeadlockAlgorithm {
 		return somatoriaRecursosAlocados;
 	}
 	
-	private boolean recursosValidos(){
+	private boolean recursosInsuficientes(){
 		
 		//se os recursos existentes nao satisfazerem
 		//os recursos necessarios + recursos alocados
@@ -108,7 +108,20 @@ public class DeadlockAlgorithm {
 		return novaMatriz;
 	}
 	
-	public void usarRecurso(int processo){
+	private void resetarImpasses(){
+		for(int processo = 0; processo < this.totalDeProcessos; processo++)
+			impasse[processo] = false;
+	}
+	
+	private boolean processosServidos(){
+		for(int processo = 0; processo < this.totalDeProcessos; processo++)
+			if(!processoServido[processo])
+				return false;
+		
+		return true;
+	}
+	
+	private void usarRecurso(int processo){
 		System.out.println("Processo[" + processo + "] está usando recurso.");
 		
 		int[][] recursosAlocadosAntesDaSoma = criarCopiaDaMatriz(recursosAlocados);
@@ -126,11 +139,6 @@ public class DeadlockAlgorithm {
 			}
 			
 		}
-	}
-	
-	private void resetarImpasses(){
-		for(int processo = 0; processo < this.totalDeProcessos; processo++)
-			impasse[processo] = false;
 	}
 	
 	private void devolverRecurso(int processo){
@@ -152,25 +160,12 @@ public class DeadlockAlgorithm {
 		
 		System.out.println("\n--------------------------------------------------------------");
 		System.out.println("Exibindo recursos disponíveis após o processo devolver recurso:");
-		mostrarRecursosDisponiveis();
+		mostrarVetorDe("Rec. disponíveis", recursosDisponiveis);
 		
 		//serviu o processo, esqueça os antigos
 		//impasses e tente novamente, talvez tenha
 		//conseguido novos recursos.
 		resetarImpasses();
-	}
-	
-	private void mostrarAndamentoDaComparacao(int processo, int recurso){
-		System.out.println();
-		System.out.println("=============================================");
-		System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
-		System.out.println("Analisando se recurso disponível (" + recursosDisponiveis[recurso] + ") < recurso necessário ("+ recursosNecessarios[processo][recurso] + ")...");
-	}
-	
-	private void mostrarVezesExecutadas(int processo){
-		System.out.println("\n*********************************************");
-		System.out.println("*Processo[" + processo + "] está sendo executado pela " + vezesExecutadasDoProcesso[processo] + "x...*");
-		System.out.println("*********************************************\n");
 	}
 	
 	private void compararRecursos(int[][] recursosNecessarios, int[] recursosDisponiveis){
@@ -215,65 +210,55 @@ public class DeadlockAlgorithm {
 		}
 	}
 	
-	private void mostrarRecursosDisponiveis(){
-		System.out.println("================");
-		System.out.println("Rec. disponíveis: ");
-		for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
-			System.out.print(recursosDisponiveis[recurso] + " ");
-		}
+	private void mostrarAndamentoDaComparacao(int processo, int recurso){
 		System.out.println();
+		System.out.println("=============================================");
+		System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
+		System.out.println("Analisando se recurso disponível (" + recursosDisponiveis[recurso] + ") < recurso necessário ("+ recursosNecessarios[processo][recurso] + ")...");
 	}
 	
-	public void mostrarRecursosAlocados(){
+	private void mostrarVezesExecutadas(int processo){
+		System.out.println("\n*********************************************");
+		System.out.println("*Processo[" + processo + "] está sendo executado pela " + vezesExecutadasDoProcesso[processo] + "x...*");
+		System.out.println("*********************************************\n");
+	}
+	
+	public void mostrarMatrizDe(String mensagem, int[][] matriz){
 		System.out.println("================");
-		System.out.println("Rec. alocados: ");
+		System.out.println(mensagem);
 		for(int processo = 0; processo < this.totalDeProcessos; processo++){
 			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
-				System.out.print(recursosAlocados[processo][recurso] + " ");
+				System.out.print(matriz[processo][recurso] + " ");
 			}
 			System.out.println();
 		}
 		System.out.println();
 	}
 	
-	public void mostrarRecursosNecessarios(){
+	public void mostrarVetorDe(String mensagem, int[] vetor){
 		System.out.println("================");
-		System.out.println("Rec. necessarios: ");
-		for(int processo = 0; processo < this.totalDeProcessos; processo++){
-			for(int recurso = 0; recurso < this.totalDeRecursos; recurso++){
-				System.out.print(recursosNecessarios[processo][recurso] + " ");
-			}
-			System.out.println();
+		System.out.println(mensagem);
+		int tamanhoVetor = vetor.length;
+		for(int i = 0; i < tamanhoVetor; i++){
+			System.out.print(vetor[i] + " ");
 		}
 		System.out.println();
-		
-	}
-	
-	private boolean processosServidos(){
-		for(int processo = 0; processo < this.totalDeProcessos; processo++)
-			if(!processoServido[processo])
-				return false;
-		
-		return true;
 	}
 	
 	//TODO
 	public void realizarAnalise(){
+		
 		this.somatoriaRecursosAlocados = pegaQtdRecursosEmUso(recursosAlocados);
 		this.recursosDisponiveis = calcularRecursosDisponiveis(recursosExistentes, somatoriaRecursosAlocados);
 		
-		//if(!recursosValidos()){
-		//	System.out.println("Total de recursos existentes < (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
-		//	return;
-		//}
-		//recursosDisponiveis[0] = 1;
-		//recursosDisponiveis[1] = 1;
-		//recursosDisponiveis[2] = 0;
-		//recursosDisponiveis[3] = 2;
+		if(recursosInsuficientes()){
+			System.out.println("Total de recursos existentes < (total de recursos alocados + total de recursos necessários), impossível prosseguir.");
+			return;
+		}
 		
-		mostrarRecursosAlocados();
-		mostrarRecursosNecessarios();
-		mostrarRecursosDisponiveis();
+		mostrarMatrizDe("Rec. necessários", recursosNecessarios);
+		mostrarMatrizDe("Rec. alocados", recursosAlocados);
+		mostrarVetorDe("Rec. disponíveis", recursosDisponiveis);
 		
 		while(!processosServidos() && !deadlock()){
 			compararRecursos(recursosNecessarios, recursosDisponiveis);
@@ -281,10 +266,6 @@ public class DeadlockAlgorithm {
 		
 		System.out.println();
 		System.out.println("ANÁLISE FINALIZADA.");
-		//int cont = 1;
-		//while(cont < 40){
-		//	compararRecursos(recursosNecessarios, recursosDisponiveis);
-		//	cont++;
 	}
 
 }
