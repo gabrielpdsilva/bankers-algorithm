@@ -226,7 +226,7 @@ public class DeadlockAlgorithm {
 		System.out.println();
 		System.out.println("=============================================");
 		System.out.println("Analisando o processo " + processo + ", recurso " + recurso);
-		System.out.println("Analisando se recurso disponível (" + recursosDisponiveis[recurso] + ") < recurso necessário ("+ recursosNecessarios[processo][recurso] + ")...");
+		System.out.println("Analisando se recurso disponível[" + recurso + "] < recurso necessário["+ recurso + "]...");
 	}
 	
 	private void mostrarVezesExecutadas(int processo){
